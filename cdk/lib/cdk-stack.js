@@ -24,7 +24,7 @@ class CdkStack extends Stack {
       provider,
       owner: "lannonbr",
       repo: "ad-bot",
-      filter: "ref:refs/head/main",
+      filter: "ref:refs/heads/main",
     });
 
     actionsRole.addManagedPolicy(
