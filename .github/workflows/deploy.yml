@@ -1,0 +1,31 @@
+name: Deploy to Elastic Beanstalk on Push
+on:
+  push:
+    branches: [main]
+permissions:
+  id-token: write
+  contents: write
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.DEPLOY_APP_ROLE }}
+          role-session-name: UpdateDiscordBotSession
+          role-duration-seconds: 900
+      - name: install deps and zip up files
+        run: npm install && npm run zip
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v20
+        with:
+          deployment_package: deploy.zip
+          region: us-east-1
+          aws_access_key: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws_session_token: ${{ env.AWS_SESSION_TOKEN }}
+          application_name: ${{ secrets.EB_APP_NAME }}
+          environment_name: ${{ secrets.EB_ENV_NAME }}
+          version_label: version-git-${{ github.sha }}
