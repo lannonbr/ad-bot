@@ -15,6 +15,25 @@ class CdkStack extends Stack {
   constructor(scope, id, props) {
     super(scope, id, props);
 
+    const instanceRole = new iam.Role(this, "InstanceRole", {
+      roleName: "iamInstanceRole",
+      assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
+    });
+
+    instanceRole.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName("AWSElasticBeanstalkWebTier")
+    );
+    instanceRole.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName(
+        "AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
+      )
+    );
+
+    new iam.CfnInstanceProfile(this, "InstanceProfile", {
+      instanceProfileName: "ADInstanceProfile",
+      roles: [instanceRole.roleName],
+    });
+
     const provider = GithubActionsIdentityProvider.fromAccount(
       this,
       "GitHubActionsProvider"
@@ -35,25 +54,6 @@ class CdkStack extends Stack {
         "AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
       )
     );
-
-    const instanceRole = new iam.Role(this, "InstanceRole", {
-      roleName: "iamInstanceRole",
-      assumedBy: new iam.ServicePrincipal("ec2.amazonaws.com"),
-    });
-
-    instanceRole.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName("AWSElasticBeanstalkWebTier")
-    );
-    instanceRole.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
-      )
-    );
-
-    new iam.CfnInstanceProfile(this, "InstanceProfile", {
-      instanceProfileName: "ADInstanceProfile",
-      roles: [instanceRole.roleName],
-    });
   }
 }
 
