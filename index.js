@@ -12,7 +12,7 @@ client.once("ready", () => {
 client.on("messageCreate", async (msg) => {
   if (!msg.author.bot) {
     await msg.channel.send({
-      content: `(AWS) You sent: ${msg.content}`,
+      content: `You sent: ${msg.content}`,
     });
   }
 });
